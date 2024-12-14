@@ -1,4 +1,3 @@
-import 'package:expense_tracker/view/expense_list_screen/expense_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,6 +12,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+
+  List expenses = [];
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +92,26 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   Expanded(
                     child: InkWell(
                       onTap: () {
+                        // Collect the data from the text controllers
                         final amount = amountController.text;
                         final category = categoryController.text;
                         final description = descriptionController.text;
 
-                        print("Saved: \$ $amount, $category, $description");
+                        if (amount.isNotEmpty &&
+                            category.isNotEmpty &&
+                            description.isNotEmpty) {
+                          setState(() {
+                            expenses.add({
+                              'category': category,
+                              'description': description,
+                              'amount': '\$$amount',
+                            });
+                          });
+
+                          amountController.clear();
+                          categoryController.clear();
+                          descriptionController.clear();
+                        }
                       },
                       child: Container(
                         padding:
@@ -147,41 +163,35 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               ),
               SizedBox(height: 30),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ExpenseListScreen()),
-                      );
-                    },
-                    child: Text(
-                      "Expense List",
-                      style: GoogleFonts.cormorantGaramond(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20,
-                          color: Colors.teal),
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Colors.teal,
-                  )
-                ],
+              Text(
+                "Expense List",
+                style: GoogleFonts.cormorantGaramond(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 25,
+                    color: Colors.teal),
               ),
 
               SizedBox(
                 height: 250,
                 child: ListView.separated(
-                  itemCount: 5,
+                  itemCount: expenses.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text("category"),
-                      subtitle: Text("description"),
-                      trailing: Text("amont"),
+                      leading: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              expenses.removeAt(index);
+                            });
+                          },
+                          icon: Icon(Icons.delete)),
+                      title: Text(expenses[index]['category'] ?? 'Unknown'),
+                      subtitle: Text(
+                          expenses[index]['description'] ?? 'No Description'),
+                      trailing: Text(
+                        expenses[index]['amount'] ?? '\$0',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w900, fontSize: 20),
+                      ),
                     );
                   },
                   separatorBuilder: (context, index) => Divider(),

@@ -1,7 +1,12 @@
 import 'package:expense_tracker/view/expense_screen/expense_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
   runApp(MyApp());
 }
 
